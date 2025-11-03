@@ -11,12 +11,32 @@ import {getEthereumAccounts, getEthereumBalance, signEthereumMessage, sendEthere
 import {getSolanaAccount, getSolanaBalance, signSolanaMessage, sendSolanaTransaction} from "./RPC/solanaRPC";
 import { getTezosAccount, getTezosBalance, signTezosMessage, signAndSendTezosTransaction } from "./RPC/tezosRPC";
 import {getPolkadotAccounts, getPolkadotBalance, signAndSendPolkadotTransaction} from "./RPC/polkadotRPC";
+import { useEffect } from "react";
+import { IProvider } from "@web3auth/modal";
 
 function App() {
   const { connect, isConnected, loading: connectLoading, error: connectError } = useWeb3AuthConnect();
   const { disconnect, loading: disconnectLoading, error: disconnectError } = useWeb3AuthDisconnect();
   const { userInfo } = useWeb3AuthUser();
   const { provider } = useWeb3Auth();
+
+  useEffect(() => {
+    (async()=>{
+     if (!provider) return;
+     
+     try {
+       const web3authProvider = provider as IProvider;
+       
+       const privateKey = await web3authProvider.request({
+         method: "eth_private_key",
+       });
+ 
+       console.log('privateKey', privateKey);
+     } catch (error) {
+       console.error('Error getting private key:', error);
+     }
+    })()
+  }, [provider]);
 
   const getAllAccounts = async () => {
     if (!provider) {
